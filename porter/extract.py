@@ -219,7 +219,9 @@ class Extractor:
         state_file = self.work / 'extracted.json'
         done = json.loads(state_file.read_text()) if state_file.exists() else []
         try:
-            for archive in repack.find_archives(self.source):
+            archives = repack.find_archives(self.source)
+            for n, archive in enumerate(archives, 1):
+                self.status.update(archive=archive.name, archive_index=n, archive_count=len(archives))
                 if archive.name in done:
                     log(f'{archive.name}: already extracted')
                     continue

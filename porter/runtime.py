@@ -49,7 +49,10 @@ def ensure_runtime(name):
         raise SystemExit(f'{archive.name}: checksum mismatch, refusing to use it')
     log(f'unpacking {name}')
     with tarfile.open(archive) as t:
-        t.extractall(dest, filter='tar')
+        try:
+            t.extractall(dest, filter='tar')
+        except TypeError:           # Python < 3.12 (macOS system python is 3.9)
+            t.extractall(dest)
     if not spec['check'].exists():
         raise SystemExit(f'{name}: unexpected archive layout ({spec["check"]} missing)')
     # Downloaded runtimes carry quarantine; strip it so Gatekeeper doesn't stall first launch.
