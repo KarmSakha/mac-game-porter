@@ -21,8 +21,8 @@ REGISTRY = r'''Windows Registry Editor Version 5.00
 "Enable SDL"=dword:00000000
 '''
 # RetinaMode off: Wine reports the screen in points, so fullscreen windows match the display.
-# Display capture off: Cmd-Tab keeps working. SDL off: controllers pass through as raw HID,
-# so games can drive DualSense adaptive triggers themselves.
+# Display capture off: Cmd-Tab keeps working. SDL off: pads come from macOS IOHID; whether they reach
+# the game raw (DualSense triggers/haptics) or XInput-converted is chosen per game by the launcher.
 
 
 def clone(src, dst):
@@ -88,7 +88,9 @@ def build_app(name, game_dir, info, out_dir, embed=False):
     log('assembling app bundle (APFS clones, no extra disk)')
     clone(paths.GAME_WINE, res / 'wine')
     clone(prefix_template(), res / 'prefix-template')
-    conf = f'GAME_NAME={name!r}\nGAME_SLUG={slug!r}\nGAME_EXE={info["exe"]!r}\nENGINE={info["engine"]!r}\n'
+    conf = (f'GAME_NAME={name!r}\nGAME_SLUG={slug!r}\nGAME_EXE={info["exe"]!r}\nENGINE={info["engine"]!r}\n'
+            f'CONTROLLER={info.get("controller", "xinput")!r}\n')
+    shutil.copy2(paths.REPO / 'templates/winexinput.inf', res / 'winexinput.inf')
     if embed:
         clone(game_dir, res / 'game')
     else:

@@ -40,7 +40,9 @@ def cmd_extract(a):
 def cmd_package(a):
     runtime.ensure_runtime('gptk')
     info = game.detect(a.source, a.exe)
-    log(f'engine: {info["engine"]}, executable: {info["exe"]}')
+    if getattr(a, 'controller', None):
+        info['controller'] = a.controller
+    log(f'engine: {info["engine"]}, executable: {info["exe"]}, controllers: {info["controller"]}')
     out = Path(a.out or paths.GAMES)
     out.mkdir(parents=True, exist_ok=True)
     app = package.build_app(a.name, a.source, info, out)
@@ -94,6 +96,9 @@ def main():
         s.add_argument('--exe', help='game executable relative to the game folder (auto-detected otherwise)')
         s.add_argument('--out', help=f'where to put the .app/.dmg (default {paths.GAMES})')
         s.add_argument('--dmg', action='store_true', help='also build a DMG')
+        s.add_argument('--controller', choices=['raw', 'xinput'],
+                       help='raw: real DualSense/DualShock HID for games with native support (adaptive triggers); '
+                            'xinput: Xbox-style pad (default unless the game drives Sony pads itself)')
         if name == 'install':
             s.add_argument('--keep-extracted', action='store_true', help='keep the decoder work folder')
         s.set_defaults(func=cmd_install if name == 'install' else cmd_package)

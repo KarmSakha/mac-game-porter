@@ -114,14 +114,19 @@ open ~/Games/"Some Game.app"
   Unreal `GameUserSettings.ini` is corrected on every launch; Unity gets `-window-mode borderless`.
 - **Performance**: `D3DM_ENABLE_METALFX=1` (DLSS upscaling requests go to MetalFX, where the game offers
   DLSS), esync, and the Unreal first-run Epic preset is lowered to High. Rosetta advertises AVX.
-- **Controllers**: Wine's SDL backend is off, so pads appear as raw HID devices and games can send their
-  own DualSense output reports (adaptive triggers). Use a USB-C cable: DualSense haptics are
-  4-channel USB audio and don't work over Bluetooth.
+- **Controllers**: Apple's GPTK Wine normally hides a PS5 DualSense behind its XInput converter (a generic
+  15-byte pad with no feature or output reports), so games with native DualSense support can't detect it.
+  For games that drive Sony pads themselves (detected from the executable, or `--controller raw`) the
+  launcher removes that converter from the game's prefix. The game then sees the real DualSense: 64-byte
+  reports, calibration features, and output reports for **adaptive triggers**, lightbar and rumble. Other games
+  keep XInput mode, where every pad looks like an Xbox controller. Override in `launch.conf` with
+  `CONTROLLER=raw` or `CONTROLLER=xinput`. Use a USB-C cable; haptics use the controller's 4-channel USB audio.
 
 Per-user tweaks go in `~/Library/Application Support/<Name>/launch.conf`, for example:
 
 ```sh
 MTL_HUD_ENABLED=1        # Metal FPS overlay
+CONTROLLER=raw           # raw DualSense/DualShock HID (native support, adaptive triggers) or xinput
 EXTRA_ARGS="-dx12"       # extra game arguments
 ```
 
@@ -148,6 +153,9 @@ porter/stagerun.py     header / temp-file / 4x4 stage runner
 porter/game.py         engine and executable detection
 porter/package.py      prefix template, .app and DMG
 templates/launcher.sh  launcher copied into every app
+native/padtest.c       what a Windows game sees of your controllers (raw HID + XInput), run under Wine
+native/dstrigger.c     sends a DualSense adaptive-trigger/lightbar output report to test the output path
+native/audiotest.c     lists audio endpoints as Windows games see them (DualSense haptics endpoint)
 native/                fa-filter, SREP patch, CLS host, FreeArc archive mapper (vendored, MIT)
 ```
 

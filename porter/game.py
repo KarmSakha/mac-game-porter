@@ -11,8 +11,27 @@ def _skippable(p):
     return any(s in n for s in SKIP)
 
 
+def controller_mode(exe_path):
+    """'raw' when the game drives DualSense/DualShock itself over HID (so Wine must expose the real
+    device), otherwise 'xinput' (Wine converts pads to XInput, which most games expect)."""
+    import mmap
+    try:
+        with open(exe_path, 'rb') as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m:
+            uses_hid = m.find(b'HID.DLL') >= 0 or m.find(b'hid.dll') >= 0
+            knows_sony = any(m.find(s) >= 0 for s in (b'DualSense', b'libScePad', b'DualShock'))
+    except (OSError, ValueError):
+        return 'xinput'
+    return 'raw' if uses_hid and knows_sony else 'xinput'
+
+
 def detect(game_dir, exe_override=None):
-    """Return {'engine': ..., 'exe': path relative to game_dir}."""
+    """Return {'engine': ..., 'exe': path relative to game_dir, 'controller': 'raw'|'xinput'}."""
+    info = _detect(game_dir, exe_override)
+    info['controller'] = controller_mode(Path(game_dir) / info['exe'])
+    return info
+
+
+def _detect(game_dir, exe_override=None):
     root = Path(game_dir)
     if exe_override:
         exe = root / exe_override
