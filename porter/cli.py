@@ -6,7 +6,9 @@
   porter setup                               download runtimes and build native helpers
 """
 import argparse
+import os
 import shutil
+import signal
 from pathlib import Path
 
 from . import game, package, paths, repack, runtime
@@ -67,7 +69,20 @@ def cmd_install(a):
     log(f'done. Launch: open "{app}"')
 
 
+def _stop(signum, _frame):
+    # Cancel from the GUI (or Ctrl-C): stop every decoder in our process group, then unwind so
+    # cleanup (Wine server shutdown) still runs.
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    os.killpg(0, signal.SIGTERM)
+    raise SystemExit('cancelled')
+
+
 def main():
+    try:
+        os.setpgrp()                 # own process group, so a cancel reaches all decoder processes
+    except OSError:
+        pass
+    signal.signal(signal.SIGTERM, _stop)
     ap = argparse.ArgumentParser(prog='porter', description='Port Windows games to macOS (GPTK + D3DMetal).')
     sub = ap.add_subparsers(dest='cmd', required=True)
     s = sub.add_parser('setup')

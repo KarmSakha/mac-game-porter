@@ -7,6 +7,19 @@ Turn a Windows game into a double-clickable macOS app on Apple Silicon, using Ap
   running the Windows installer, or
 - an **already-installed Windows game folder** (copied from a PC, Steam library, etc.).
 
+### App (recommended)
+
+```sh
+gui/build.sh                         # builds build/Mac Game Porter.app (bundles the porter and native tools)
+cp -R "build/Mac Game Porter.app" ~/Applications/
+```
+
+Open **Mac Game Porter**, drop a repack or game folder on the window, check the name, and press
+**Port Game**. You get live progress, a log, Cancel, and **Play** when it finishes. Every ported game
+is listed under *Your games*.
+
+### Command line
+
 ```sh
 ./porter.sh setup                                                 # one-time: runtimes + native helpers
 ./porter.sh install "~/Downloads/Some Game [Repack]" --name "Some Game" --dmg
@@ -34,8 +47,10 @@ open ~/Games/"Some Game.app"
 2. **Picks the executable**: Unreal (`*/Binaries/Win64/*-Shipping.exe`, skipping the bootstrap exe that
    hangs under Wine), Unity (`X.exe` next to `X_Data/`), otherwise the largest non-installer exe.
    Override with `--exe`.
-3. **Builds `~/Games/<Name>.app`** containing GPTK Wine, a tuned prefix template and the game
-   (APFS clones: no extra disk space). `--dmg` also writes a compressed DMG.
+3. **Builds `~/Games/<Name>.app`** with GPTK Wine and a tuned prefix template. The game data stays in
+   `~/Library/Application Support/MacGamePorter/games/<name>`, outside the bundle: macOS's first-launch
+   security scan of a 40 GB bundle blocks the launch for minutes. `--dmg` builds a self-contained app
+   (game embedded) in a compressed DMG for another Mac.
 
 ## What the generated app does on launch
 
@@ -72,6 +87,7 @@ Data and caches live in `~/Library/Application Support/MacGamePorter`.
 
 ```
 porter.sh              entry point
+gui/                   SwiftUI app (MacGamePorter.swift), its build script and icon renderer
 porter/cli.py          setup / install / extract / package commands
 porter/repack.py       repack detection, payload extraction (innoextract), arc.ini → decoder plan
 porter/extract.py      streaming extractor and verification
