@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mac Game Porter: Play Windows Games on Mac (Apple Silicon, Free)</title>
+<meta name="description" content="Free, open-source app to play Windows games on Apple Silicon Macs (M1–M5). Turns Windows games and FitGirl/FreeArc repacks into Mac apps using Apple's Game Porting Toolkit and D3DMetal (DirectX 12 to Metal). A free CrossOver alternative.">
+<meta name="keywords" content="play windows games on mac, game porting toolkit, d3dmetal, crossover alternative, whisky alternative, wine mac, apple silicon gaming, directx 12 mac, fitgirl repack mac, m1 m2 m3 m4 m5 gaming">
+<link rel="canonical" href="https://karmsakha.github.io/mac-game-porter/">
+<link rel="icon" type="image/png" href="icon.png">
+<meta name="theme-color" content="#1b1440">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mac Game Porter">
+<meta property="og:title" content="Mac Game Porter: Play Windows Games on Mac">
+<meta property="og:description" content="Free, open-source app that turns Windows games and repacks into Mac apps on Apple Silicon, using Apple's Game Porting Toolkit (D3DMetal).">
+<meta property="og:url" content="https://karmsakha.github.io/mac-game-porter/">
+<meta property="og:image" content="https://karmsakha.github.io/mac-game-porter/og.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="Mac Game Porter: Play Windows games on your Mac">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mac Game Porter: Play Windows Games on Mac">
+<meta name="twitter:description" content="Free, open-source Windows game porter for Apple Silicon Macs (Game Porting Toolkit, D3DMetal, DirectX 12 to Metal).">
+<meta name="twitter:image" content="https://karmsakha.github.io/mac-game-porter/og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Mac Game Porter",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "macOS 14 or later (Apple Silicon)",
+  "description": "Free, open-source app that turns Windows games and FreeArc repacks into macOS apps using Apple's Game Porting Toolkit and D3DMetal.",
+  "url": "https://karmsakha.github.io/mac-game-porter/",
+  "downloadUrl": "https://github.com/KarmSakha/mac-game-porter",
+  "codeRepository": "https://github.com/KarmSakha/mac-game-porter",
+  "license": "https://opensource.org/licenses/MIT",
+  "image": "https://karmsakha.github.io/mac-game-porter/og.png",
+  "screenshot": "https://karmsakha.github.io/mac-game-porter/screenshot.png",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "author": {"@type": "Person", "name": "KarmSakha", "url": "https://github.com/KarmSakha"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How do I play Windows games on a Mac with Apple Silicon?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Install Mac Game Porter, drop the game folder or repack on it and press Port Game. It uses Apple's Game Porting Toolkit (Wine and D3DMetal), so DirectX 11 and 12 games render on Metal."}},
+    {"@type": "Question", "name": "How do I install a FitGirl repack on a Mac?",
+     "acceptedAnswer": {"@type": "Answer", "text": "FitGirl-style repacks use a Windows setup.exe whose unpacker stalls under CrossOver and Wine on macOS. Mac Game Porter unpacks the .bin archives natively using the repack's own decoder list, then turns the game into a Mac app. Only install games you own."}},
+    {"@type": "Question", "name": "Is Mac Game Porter a free CrossOver alternative?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is free and open source (MIT) and builds on the same technology, Wine and Apple's D3DMetal, producing one standalone app per game."}},
+    {"@type": "Question", "name": "Can I run DirectX 12 games on a Mac?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Yes. Apple's D3DMetal translates DirectX 12 to Metal, and Mac Game Porter sets it up automatically. Performance depends on the game and the Mac."}},
+    {"@type": "Question", "name": "Which Macs are supported?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Apple Silicon Macs (M1, M2, M3, M4 and M5) running macOS 14 Sonoma or later."}}
+  ]
+}
+</script>
+<style>
+:root { --bg:#f7f7fb; --fg:#15131f; --muted:#5d5a70; --card:#ffffff; --line:#e3e1ee; --accent:#5b3cf2; --accent2:#1a8cfa; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0f0d1c; --fg:#ecebf5; --muted:#a4a1b8; --card:#1a1730; --line:#2b2748; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; }
+main { max-width:980px; margin:0 auto; padding:0 16px 64px; }
+header { text-align:center; padding:64px 0 32px; }
+header img.icon { width:112px; height:112px; }
+h1 { font-size:clamp(2.1rem, 5vw, 3.2rem); line-height:1.1; margin:16px 0 12px; letter-spacing:-0.02em; }
+.lead { font-size:1.2rem; color:var(--muted); max-width:720px; margin:0 auto 28px; }
+.cta { display:inline-block; padding:12px 26px; border-radius:12px; color:#fff; text-decoration:none; font-weight:600;
+       background:linear-gradient(120deg, var(--accent), var(--accent2)); }
+.cta.secondary { background:none; color:var(--accent); border:1px solid var(--line); margin-left:8px; }
+.shot { width:100%; border-radius:14px; border:1px solid var(--line); margin:36px 0 8px; box-shadow:0 20px 50px rgba(20,10,60,.18); }
+h2 { font-size:1.6rem; margin:56px 0 16px; letter-spacing:-0.01em; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; }
+.card h3 { margin:0 0 6px; font-size:1.05rem; }
+.card p { margin:0; color:var(--muted); font-size:.97rem; }
+table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; font-size:.95rem; }
+th, td { padding:10px 14px; border-bottom:1px solid var(--line); text-align:left; }
+.table-wrap { overflow-x:auto; }
+pre { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; overflow-x:auto; font-size:.9rem; }
+details { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 16px; margin-bottom:10px; }
+summary { font-weight:600; cursor:pointer; }
+footer { text-align:center; color:var(--muted); font-size:.9rem; padding:32px 0; }
+a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <img class="icon" src="icon.png" alt="Mac Game Porter app icon" width="112" height="112">
+  <h1>Play Windows games on your Mac</h1>
+  <p class="lead">Mac Game Porter is a free, open-source app that turns Windows games and repacks into Mac apps on
+  Apple Silicon (M1–M5). It uses Apple's <b>Game Porting Toolkit</b> and <b>D3DMetal</b> to run DirectX 11 and 12 games on Metal.</p>
+  <a class="cta" href="https://github.com/KarmSakha/mac-game-porter">Get it on GitHub</a>
+  <a class="cta secondary" href="#quick-start">Quick start</a>
+  <img class="shot" src="screenshot.png" width="1400" height="885" alt="Mac Game Porter window: drop a Windows game or repack folder and press Port Game">
+</header>
+
+<section>
+  <h2>Why Mac Game Porter</h2>
+  <div class="grid">
+    <div class="card"><h3>DirectX 12 on Metal</h3><p>Apple's D3DMetal from the Game Porting Toolkit, set up for you. No bottles, no terminal.</p></div>
+    <div class="card"><h3>Repacks without setup.exe</h3><p>FitGirl-style FreeArc repacks are unpacked natively on macOS, avoiding the installer that stalls in CrossOver and Wine.</p></div>
+    <div class="card"><h3>One app per game</h3><p>Every game becomes <code>~/Games/Game.app</code> with its own icon. Export a DMG to copy it to another Mac.</p></div>
+    <div class="card"><h3>Fits your screen</h3><p>Borderless fullscreen at your display's exact size, with no overflowing or cropped windows on Retina displays.</p></div>
+    <div class="card"><h3>Tuned for speed</h3><p>MetalFX upscaling for DLSS games, esync, AVX through Rosetta, and sensible graphics presets.</p></div>
+    <div class="card"><h3>Controllers</h3><p>DualSense and Xbox pads are passed through as raw HID, so games drive their own controller features.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Compared with the alternatives</h2>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Mac Game Porter</th><th>CrossOver</th><th>Manual Wine / GPTK</th></tr>
+    <tr><td>Price</td><td>Free, open source</td><td>Paid</td><td>Free</td></tr>
+    <tr><td>DirectX 12 via D3DMetal</td><td>Yes</td><td>Yes</td><td>With manual setup</td></tr>
+    <tr><td>Installs FreeArc repacks without setup.exe</td><td>Yes</td><td>No</td><td>No</td></tr>
+    <tr><td>Standalone app per game, DMG export</td><td>Yes</td><td>Bottles</td><td>No</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2>Tested games</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Game</th><th>Engine / API</th><th>Status</th></tr>
+    <tr><td>LEGO Batman: Legacy of the Dark Knight</td><td>Unreal Engine 5 · DirectX 12</td><td>Playable on MacBook Air M5</td></tr>
+  </table></div>
+</section>
+
+<section id="quick-start">
+  <h2>Quick start</h2>
+  <pre><code>git clone https://github.com/KarmSakha/mac-game-porter.git &amp;&amp; cd mac-game-porter
+brew install innoextract rust mingw-w64
+gui/build.sh &amp;&amp; cp -R "build/Mac Game Porter.app" ~/Applications/</code></pre>
+  <p>Open <b>Mac Game Porter</b>, drop a repack or game folder on it, press <b>Port Game</b>, then <b>Play</b>.
+  Requires an Apple Silicon Mac on macOS 14 or later.</p>
+</section>
+
+<section>
+  <h2>FAQ</h2>
+  <details><summary>How do I play Windows games on a Mac with Apple Silicon?</summary>
+  <p>Install Mac Game Porter, drop the game folder or repack on it and press Port Game. It uses Apple's Game Porting Toolkit (Wine and D3DMetal), so DirectX 11 and 12 games render on Metal.</p></details>
+  <details><summary>How do I install a FitGirl repack on a Mac?</summary>
+  <p>FitGirl-style repacks use a Windows setup.exe whose unpacker stalls under CrossOver and Wine on macOS. Mac Game Porter unpacks the .bin archives natively using the repack's own decoder list, then turns the game into a Mac app. Only install games you own.</p></details>
+  <details><summary>Is Mac Game Porter a free CrossOver alternative?</summary>
+  <p>Yes. It is free and open source (MIT) and builds on the same technology, Wine and Apple's D3DMetal, producing one standalone app per game.</p></details>
+  <details><summary>Can I run DirectX 12 games on a Mac?</summary>
+  <p>Yes. Apple's D3DMetal translates DirectX 12 to Metal, and Mac Game Porter sets it up automatically. Performance depends on the game and the Mac.</p></details>
+  <details><summary>Which Macs are supported?</summary>
+  <p>Apple Silicon Macs (M1, M2, M3, M4 and M5) running macOS 14 Sonoma or later.</p></details>
+</section>
+</main>
+<footer>
+  Mac Game Porter is open source under the MIT license · <a href="https://github.com/KarmSakha/mac-game-porter">GitHub</a><br>
+  Not affiliated with Apple, CodeWeavers or any game publisher. Only install games you own.
+</footer>
+</body>
+</html>
