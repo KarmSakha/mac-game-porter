@@ -9,11 +9,30 @@ DATA="$HOME/Library/Application Support/$GAME_NAME"
 PREFIX="$DATA/prefix"
 LOG="$DATA/last-run.log"
 mkdir -p "$DATA"
+[[ -f "$DATA/launch.conf" ]] && source "$DATA/launch.conf"   # per-user overrides (MTL_HUD_ENABLED=1, CONTROLLER=raw, EXTRA_ARGS=...)
 
 # The app may live on a read-only DMG, so the writable Windows prefix is per-user.
 [[ -f "$PREFIX/system.reg" ]] || ditto "$RES/prefix-template" "$PREFIX"
 mkdir -p "$PREFIX/drive_c/Games"
 ln -sfn "$GAME_DIR" "$PREFIX/drive_c/Games/$GAME_SLUG"      # refreshed in case the app moved
+
+# Controllers. Wine 7.7 (GPTK) wraps anything that looks like a gamepad in its XInput converter, which
+# hides the real device: a DualSense then shows up as a generic 15-byte pad with no feature/output
+# reports, so games with native DualSense support can't detect it and adaptive triggers can't work.
+# raw: drop the converter's driver match so pads install as plain HID (real reports both ways).
+# xinput: keep the converter (Xbox-style pad) for games that only speak XInput.
+INF="$PREFIX/drive_c/windows/inf/winexinput.inf"
+if [[ "${CONTROLLER:-xinput}" == raw && -f "$INF" || "${CONTROLLER:-xinput}" == xinput && ! -f "$INF" ]]; then
+  if [[ "$CONTROLLER" == raw ]]; then rm -f "$INF" "${INF:r}.pnf"; else cp "$RES/winexinput.inf" "$INF"; fi
+  # Forget pads installed under the other mode so they re-enumerate with the right driver.
+  REG="$DATA/controller-reset.reg"
+  { echo 'Windows Registry Editor Version 5.00'; echo
+    grep -oE '^\[System\\\\CurrentControlSet\\\\Enum\\\\(WINEXINPUT|WINEBUS|HID)\\\\VID_[0-9A-Fa-f]{4}&PID_[0-9A-Fa-f]{4}[^]\\]*' "$PREFIX/system.reg" \
+      | sort -u | sed -E 's/^\[/[-HKEY_LOCAL_MACHINE\\/; s/\\\\/\\/g; s/$/]/'
+  } > "$REG"
+  WINEPREFIX="$PREFIX" WINEDEBUG=-all "$RES/wine/bin/wine64" regedit /S "Z:${REG//\//\\}" >/dev/null 2>&1
+  WINEPREFIX="$PREFIX" "$RES/wine/bin/wineserver" -w
+fi
 
 # Screen size in points (what Wine reports with Retina mode off), no permissions needed.
 SIZE=$(osascript -l JavaScript -e 'ObjC.import("AppKit"); var f=$.NSScreen.mainScreen.frame; Math.round(f.size.width)+" "+Math.round(f.size.height)' 2>/dev/null)
@@ -47,7 +66,6 @@ export ROSETTA_ADVERTISE_AVX=1               # many modern games require AVX; Ro
 export D3DM_ENABLE_METALFX=1                 # let D3DMetal map DLSS upscaling requests to MetalFX
 export MTL_HUD_ENABLED="${MTL_HUD_ENABLED:-0}"
 export WINEDLLOVERRIDES="winemenubuilder.exe=d;mscoree,mshtml="
-[[ -f "$DATA/launch.conf" ]] && source "$DATA/launch.conf"   # per-user overrides (MTL_HUD_ENABLED=1, EXTRA_ARGS=...)
 
 EXE_DIR="$GAME_DIR/${GAME_EXE:h}"
 cd "$EXE_DIR"
