@@ -23,7 +23,7 @@ from . import paths
 ARC_FOOTER = b'ArC\x01'
 # FreeArc built-ins compiled into fa-filter.
 FA_BUILTINS = {'delta', 'dispack', 'dispack070', 'lzma', 'lzma2', 'exe', 'bcj', 'dict', 'rep', 'lzp',
-               'tornado', 'grzip', 'mm', 'tta', 'ppmd', 'lz4', 'storing'}
+               'tor', 'tornado', 'grzip', 'mm', 'tta', 'ppmd', 'lz4', 'storing'}
 SEEKABLE_TOOLS = re.compile(r'^(xtool|rtool)', re.I)   # read input with seeks; pipes stall them
 
 
