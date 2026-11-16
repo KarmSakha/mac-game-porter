@@ -2,9 +2,8 @@
 
 <h1 align="center">Mac Game Porter</h1>
 
-<p align="center"><b>Play Windows games on your Mac.</b> A free, open-source app that turns Windows games and
-repacks into native-feeling macOS apps on Apple Silicon (M1, M2, M3, M4, M5), using Apple's
-<b>Game Porting Toolkit</b> and <b>D3DMetal</b> to run DirectX 11 and DirectX 12 games on Metal.</p>
+<p align="center"><b>Play Windows games on your Mac.</b> A free app for Apple Silicon Macs
+(M1, M2, M3, M4, M5) that turns Windows games into Mac apps you launch like any other.</p>
 
 <p align="center">
 <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
@@ -15,29 +14,47 @@ repacks into native-feeling macOS apps on Apple Silicon (M1, M2, M3, M4, M5), us
 
 <p align="center"><img src="docs/screenshot.png" width="720" alt="Mac Game Porter app: drop a Windows game or repack folder and press Port Game"></p>
 
-Drop a folder on the window and press **Port Game**. Mac Game Porter works out how to unpack it, sets
-up a Windows environment tuned for gaming, and produces a `.app` you launch from Launchpad or the Dock
-like any other Mac game. It is a free alternative to CrossOver, Whisky and manual Wine or GPTK setups,
-built for people who just want to play.
+## How to play — 4 steps
+
+1. **Download.** Open [Releases](https://github.com/KarmSakha/mac-game-porter/releases) and grab
+   `MacGamePorter.dmg`. Open the file, then drag **Mac Game Porter** into the **Applications** folder
+   shown in the window.
+2. **Open it once.** The first time, right-click (or Control-click) the app → **Open** → **Open**
+   again. macOS shows this warning for any free app not paid-signed through Apple — it's safe.
+   If there's no Open button, go to System Settings → Privacy & Security → **Open Anyway**.
+3. **Port a game.** Drop your game folder onto the window (or click Choose) → check the name →
+   press **Port Game**. The first port downloads the Windows game engine automatically — it needs
+   internet once, then works offline.
+4. **Play.** When it finishes, press **Play**. Your game also lives in `~/Games/<Game>.app` — put it
+   in the Dock or open it from Launchpad like any Mac app.
+
+No Terminal, no Homebrew, no Xcode. Everything the app needs is inside it.
+
+## What games can I port?
+
+| You have | Result |
+|---|---|
+| A **FitGirl-style repack** (`setup.exe` + `.bin` files) | ✅ Unpacked directly on your Mac — no Windows installer needed |
+| An **installed Windows game folder** (copied from a PC, external drive, or your Steam library's `steamapps/common/<Game>` folder) | ✅ Works — the app finds the game's `.exe` itself |
+| A game that **needs Steam or another launcher running** (Steam DRM / Steamworks) | ❌ Can't start without Steam — there's no Steam client for games under Wine here |
+| **Online-only or anti-cheat** games (e.g. Fortnite, Destiny 2, most competitive multiplayer) | ❌ Anti-cheat doesn't run under Wine/GPTK |
+
+Best results: **single-player games you already have the files for**. Older and mid-weight games tend
+to run great; brand-new releases can be hit-or-miss. If you're unsure, just try it — the app tells
+you up front if it can't find a game in the folder.
 
 ## Features
 
-- **Play Windows games on Apple Silicon Macs**: DirectX 11 and DirectX 12 through Apple's D3DMetal
-  (from the Game Porting Toolkit), plus Wine for everything else.
-- **Installs repacks without the Windows installer**: FitGirl-style FreeArc repacks (`setup.exe` +
-  `.bin` archives) are extracted natively on macOS. It handles SREP, LZMA, Oodle/xtool recompression,
-  `4x4` and CLS plugins, and avoids the installer that stalls in CrossOver and Wine.
-- **Or bring an installed game**: point it at a Windows game folder copied from a PC or Steam library.
-- **One click, then play**: builds `~/Games/<Game>.app` with an icon; optionally a self-contained **DMG**
-  to copy to another Mac.
-- **Fits your screen**: borderless fullscreen at your display's exact size, with no overflowing or
-  cropped fullscreen window.
-- **Faster by default**: MetalFX upscaling for games with DLSS, esync, AVX via Rosetta, and sensible first-run
-  graphics presets for Unreal Engine games.
-- **Controllers**: PS5 DualSense and Xbox controllers pass through as raw HID, so games can drive
-  DualSense features themselves.
-- **Doesn't slow your Mac**: extraction runs at low priority, streams data instead of filling your disk,
-  and verifies every file.
+- **DirectX 11 and 12 games run on Metal** through Apple's Game Porting Toolkit.
+- **Repacks install without the Windows installer** — the app reads the repack's own decoder list
+  and unpacks it natively, so installs that stall in CrossOver or Wine just work.
+- **One click per game** — each game becomes its own `.app`; optionally export a self-contained
+  **DMG** to move it to another Mac.
+- **Fits your screen** — borderless fullscreen at your display's exact size.
+- **Faster by default** — MetalFX upscaling where games offer DLSS, esync, and sensible graphics
+  presets out of the box.
+- **Controllers** — PS5 DualSense (with adaptive triggers over USB) and Xbox pads.
+- **Gentle on your Mac** — extraction runs at low priority and verifies every file.
 
 ## Tested games
 
@@ -57,17 +74,62 @@ Ported another game? Open an issue or PR to add it to this list.
 | One `.app` per game, DMG export | ✅ | Partial (bottles) | ❌ |
 | Automatic display and fullscreen fixes | ✅ | Partial | ❌ |
 
-## Quick start
+## FAQ
 
-### Download the app (easiest)
+### The app "can't be opened" / "unidentified developer"?
 
-Get **`MacGamePorter.dmg`** (or `.zip`) from
-[Releases](https://github.com/KarmSakha/mac-game-porter/releases), drag the app into Applications,
-and open it. Everything it needs — decoders, innoextract, and the Wine/Game Porting Toolkit runtimes —
-is bundled or downloaded and verified automatically on first use. No Homebrew, git, or Xcode required.
+That's macOS Gatekeeper warning you about a free, self-signed app. Right-click the app →
+**Open** → **Open**. If the dialog has no Open button: System Settings → Privacy & Security →
+scroll down → **Open Anyway**. You only do this once per app.
 
-> The app is ad-hoc signed, so macOS may warn about an "unidentified developer" on first launch:
-> right-click the app → **Open** → **Open**.
+### Which Macs are supported?
+
+Apple Silicon Macs (M1, M2, M3, M4, M5) on macOS 14 Sonoma or later. Intel Macs can't run
+D3DMetal, so they're not supported.
+
+### Can I port my Steam games?
+
+You can port the game's **files** — the folder inside `steamapps/common` — but only if the game
+doesn't need Steam running to start (no Steam DRM). Many single-player titles work; games that
+call back into Steam or ship anti-cheat won't launch. There's no way to run the Steam client
+itself inside these ports.
+
+### Will every Windows game work?
+
+No — compatibility is the same as Wine + Game Porting Toolkit generally is. Single-player
+DirectX 9–12 games you have complete files for are the sweet spot. Anti-cheat, always-online
+and launcher-locked games are out.
+
+### How do I install a FitGirl repack on a Mac?
+
+FitGirl-style repacks ship a Windows `setup.exe` whose unpacker stalls under CrossOver and Wine.
+Mac Game Porter skips it entirely and unpacks the `.bin` archives natively. Only install games
+you own.
+
+### Is this a free CrossOver or Whisky alternative?
+
+Yes — free, open source, same underlying technology (Wine + Apple's D3DMetal), but one standalone
+app per game instead of bottles.
+
+### The game window is too big / overflows fullscreen?
+
+Apps made by Mac Game Porter launch in borderless fullscreen at your screen's exact size, which
+fixes the overflowing-window problem common with Wine on Retina displays.
+
+### How do I improve FPS?
+
+Pick DLSS in the game's graphics menu if offered (it maps to Apple MetalFX), lower the preset, or
+turn on the Metal HUD (`MTL_HUD_ENABLED=1` in `launch.conf`) to measure.
+
+### Does my PS5 DualSense controller work?
+
+Yes — connect with a USB-C cable for the best support (haptics need USB). Games with native
+DualSense support get the real pad, including adaptive triggers; other games see it as an Xbox
+controller.
+
+---
+
+## For developers
 
 ### Build from source
 
@@ -77,9 +139,8 @@ brew install innoextract rust mingw-w64 dylibbundler   # dylibbundler bundles in
 gui/build.sh && cp -R "build/Mac Game Porter.app" ~/Applications/
 ```
 
-Open **Mac Game Porter**, drop a repack or game folder on the window, check the name, and press
-**Port Game**. You get live progress, a log, Cancel, and **Play** when it finishes. Every ported game
-is listed under *Your games*.
+Requires a full Xcode install selected via `xcode-select` (Command Line Tools alone can miss the
+SwiftUI macro plugins and fail with `SwiftUIMacros not found`).
 
 ### Command line
 
@@ -89,7 +150,7 @@ is listed under *Your games*.
 open ~/Games/"Some Game.app"
 ```
 
-## What `install` does
+### What `install` does
 
 1. **Extracts the repack natively** (`porter/extract.py`). Each archive's solid blocks are streamed
    through their decoder chain with pipes, so intermediate stages never hit the disk. The decoder for
@@ -115,7 +176,7 @@ open ~/Games/"Some Game.app"
    security scan of a 40 GB bundle blocks the launch for minutes. `--dmg` builds a self-contained app
    (game embedded) in a compressed DMG for another Mac.
 
-## What the generated app does on launch
+### What the generated app does on launch
 
 - Copies the prefix to `~/Library/Application Support/<Name>/prefix` on first run, so the app can run
   from a read-only DMG. Saves live there too.
@@ -142,18 +203,22 @@ EXTRA_ARGS="-dx12"       # extra game arguments
 
 Logs are written to `~/Library/Application Support/<Name>/last-run.log`.
 
-## Requirements
+### Releasing
 
-Apple Silicon Mac on macOS 14 or later. To build from source: a full Xcode install selected via
-`xcode-select` (Command Line Tools alone can miss the SwiftUI macro plugins and produce a
-`SwiftUIMacros not found` error), plus Homebrew packages `innoextract rust mingw-w64 dylibbundler`
-(`native/build.sh` checks for them). Runtimes are downloaded on first use and
-verified by SHA-256:
+Push a `v*` tag — `.github/workflows/release.yml` builds the app on a clean macOS runner
+(innoextract is built from source with deployment target 14.0 so it runs on macOS 14/15), packages
+a DMG + zip, and publishes a GitHub release.
+
+### Requirements
+
+Apple Silicon Mac on macOS 14 or later. To build from source: a full Xcode install plus Homebrew
+packages `innoextract rust mingw-w64 dylibbundler` (`native/build.sh` checks for them). Runtimes are
+downloaded on first use and verified by SHA-256:
 [Wine Staging 11.18](https://github.com/Gcenx/macOS_Wine_builds) for the decoders and
 [Game Porting Toolkit 3.0](https://github.com/Gcenx/game-porting-toolkit) for games.
 Data and caches live in `~/Library/Application Support/MacGamePorter`.
 
-## Layout
+### Layout
 
 ```
 porter.sh              entry point
@@ -171,43 +236,7 @@ native/audiotest.c     lists audio endpoints as Windows games see them (DualSens
 native/                fa-filter, SREP patch, CLS host, FreeArc archive mapper (vendored, MIT)
 ```
 
-
-## FAQ
-
-### How do I play Windows games on a Mac with Apple Silicon?
-Install Mac Game Porter, drop the game folder (or repack) on it, and press **Port Game**. It uses
-Apple's Game Porting Toolkit (Wine + D3DMetal) under the hood, so DirectX 11/12 games render on Metal.
-
-### How do I install a FitGirl repack on a Mac?
-FitGirl-style repacks ship a Windows `setup.exe` whose unpacker stalls under CrossOver and Wine on macOS.
-Mac Game Porter skips it: it reads the repack's own decoder list and unpacks the `.bin` archives natively,
-then turns the game into a Mac app. Only install games you own.
-
-### Is this a free CrossOver or Whisky alternative?
-Yes. It is free and open source, and uses the same underlying technology (Wine and Apple's D3DMetal).
-It produces one standalone app per game instead of bottles.
-
-### Can I run DirectX 12 games on a Mac?
-Yes. Apple's D3DMetal (part of the Game Porting Toolkit) translates DirectX 12 to Metal, and Mac Game
-Porter sets it up automatically. How well a game runs depends on the game and your Mac.
-
-### Does my PS5 DualSense controller work?
-Controllers are passed through as raw HID devices so games can talk to them directly. Connect the
-DualSense with a USB-C cable for the best support; haptic feedback requires USB.
-
-### Which Macs are supported?
-Apple Silicon Macs (M1, M2, M3, M4, M5) on macOS 14 Sonoma or later. Intel Macs are not supported
-because D3DMetal requires Apple Silicon.
-
-### The game window is too big for my screen / overflows fullscreen?
-Apps made by Mac Game Porter launch in borderless fullscreen at your screen's exact size in points, which
-fixes the overflowing-window problem common with Wine on Retina displays.
-
-### How do I improve FPS?
-Pick DLSS in the game's graphics menu if it's offered (it's mapped to Apple MetalFX), lower the preset,
-or turn on the Metal HUD (`MTL_HUD_ENABLED=1` in `launch.conf`) to measure.
-
-## Notes
+### Notes
 
 - Nothing proprietary is stored in this repo: Apple's D3DMetal comes with the GPTK download, and
   repack decoders are taken from the repack being installed.
