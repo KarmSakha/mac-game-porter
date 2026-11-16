@@ -79,10 +79,12 @@ def extract_payload(source, dest):
     unpack = dest / 'tmp'
     if (unpack / 'arc.ini').exists() or (unpack / 'unarc.dll').exists():
         return unpack
-    if not shutil.which('innoextract'):
+    bundled = paths.TOOLS / 'innoextract'
+    innoextract = str(bundled) if bundled.is_file() else shutil.which('innoextract')
+    if not innoextract:
         raise SystemExit('innoextract is required: brew install innoextract')
     dest.mkdir(parents=True, exist_ok=True)
-    subprocess.run(['innoextract', '-s', '-d', str(dest), '--include', 'tmp', str(Path(source) / 'setup.exe')],
+    subprocess.run([innoextract, '-s', '-d', str(dest), '--include', 'tmp', str(Path(source) / 'setup.exe')],
                    check=True)
     if not unpack.exists():
         raise SystemExit('setup.exe payload has no {tmp} files; not a FreeArc repack installer')

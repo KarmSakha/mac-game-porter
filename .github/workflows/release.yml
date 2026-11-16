@@ -1,0 +1,68 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: brew install cmake boost xz zstd rust mingw-w64 dylibbundler
+
+      # Homebrew bottles are built for the newest macOS only, so the released
+      # app builds innoextract from source instead: deployment target 14.0,
+      # static boost/lzma/zstd, only /usr/lib dylibs.
+      - name: Build innoextract from source
+        run: |
+          curl -fsSL https://github.com/dscharrer/InnoExtract/releases/download/1.9/innoextract-1.9.tar.gz \
+            -o /tmp/innoextract.tar.gz
+          tar -xzf /tmp/innoextract.tar.gz -C /tmp
+          cd /tmp/innoextract-1.9
+          # cmake -P sub-invocation rejects the file's ancient minimum version.
+          sed -i '' 's/^cmake_minimum_required(VERSION .*)$/cmake_minimum_required(VERSION 3.10)/' \
+            cmake/VersionScript.cmake
+          # boost 1.92+ split directory.hpp out of operations.hpp.
+          perl -i -pe \
+            's{^#include <boost/filesystem/operations\.hpp>$}{$&\n#include <boost/filesystem/directory.hpp>}' \
+            src/stream/slice.cpp
+          # Resolve -lz/-lzstd/-llzma/-lbz2 to static archives first.
+          mkdir -p static-libs
+          ln -sf "$(brew --prefix xz)/lib/liblzma.a" static-libs/
+          ln -sf "$(brew --prefix zstd)/lib/libzstd.a" static-libs/
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=14.0 \
+            -DBoost_USE_STATIC_LIBS=ON \
+            -DLZMA_LIBRARY="$(brew --prefix xz)/lib/liblzma.a" \
+            -DLZMA_INCLUDE_DIR="$(brew --prefix xz)/include" \
+            -DCMAKE_EXE_LINKER_FLAGS="-L$PWD/static-libs"
+          cmake --build build --target innoextract --parallel
+          mkdir -p "$GITHUB_WORKSPACE/build/tools"
+          cp build/innoextract "$GITHUB_WORKSPACE/build/tools/innoextract"
+          otool -L "$GITHUB_WORKSPACE/build/tools/innoextract"
+
+      - name: Build app (native tools + SwiftUI bundle + bundled innoextract/python)
+        run: gui/build.sh build
+
+      - name: Package DMG and zip
+        run: |
+          mkdir -p build/dmg-src
+          cp -R "build/Mac Game Porter.app" build/dmg-src/
+          ln -s /Applications build/dmg-src/Applications
+          hdiutil create -volname "Mac Game Porter" -srcfolder build/dmg-src \
+            -ov -format UDZO build/MacGamePorter.dmg
+          ditto -c -k --keepParent "build/Mac Game Porter.app" build/MacGamePorter.zip
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" --generate-notes
+          build/MacGamePorter.dmg build/MacGamePorter.zip
