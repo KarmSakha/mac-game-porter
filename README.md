@@ -38,6 +38,7 @@ No Terminal, no Homebrew, no Xcode. Everything the app needs is inside it.
 | An **installed Windows game folder** (copied from a PC, external drive, or your Steam library's `steamapps/common/<Game>` folder) | ✅ Works — the app finds the game's `.exe` itself |
 | A game that **needs Steam or another launcher running** (Steam DRM / Steamworks) | ❌ Can't start without Steam — there's no Steam client for games under Wine here |
 | **Online-only or anti-cheat** games (e.g. Fortnite, Destiny 2, most competitive multiplayer) | ❌ Anti-cheat doesn't run under Wine/GPTK |
+| **OpenGL-only** games (no DirectX mode) | ⚠️ May fail to open a window — the graphics stack is built for DirectX |
 
 Best results: **single-player games you already have the files for**. Older and mid-weight games tend
 to run great; brand-new releases can be hit-or-miss. If you're unsure, just try it — the app tells
@@ -61,6 +62,8 @@ you up front if it can't find a game in the folder.
 | Game | Engine / API | Status |
 |---|---|---|
 | LEGO Batman: Legacy of the Dark Knight | Unreal Engine 5 · DirectX 12 | ✅ Playable on MacBook Air M5 (installed from a 30 GB FreeArc repack) |
+| Cave Story (freeware) | DirectDraw / 2D | ✅ Launches and plays (plain installed-game folder — no repack) |
+| Teeworlds | OpenGL | ⚠️ Starts but can't create a GL window — OpenGL-only games are a gap |
 
 Ported another game? Open an issue or PR to add it to this list.
 
