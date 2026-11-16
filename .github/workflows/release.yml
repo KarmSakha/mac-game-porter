@@ -1,0 +1,36 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: brew install innoextract rust mingw-w64 dylibbundler
+
+      - name: Build app (native tools + SwiftUI bundle, innoextract bundled)
+        run: gui/build.sh build
+
+      - name: Package DMG and zip
+        run: |
+          mkdir -p build/dmg-src
+          cp -R "build/Mac Game Porter.app" build/dmg-src/
+          ln -s /Applications build/dmg-src/Applications
+          hdiutil create -volname "Mac Game Porter" -srcfolder build/dmg-src \
+            -ov -format UDZO build/MacGamePorter.dmg
+          ditto -c -k --keepParent "build/Mac Game Porter.app" build/MacGamePorter.zip
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          gh release create "$GITHUB_REF_NAME" --generate-notes
+          build/MacGamePorter.dmg build/MacGamePorter.zip

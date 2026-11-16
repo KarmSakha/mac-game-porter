@@ -70,7 +70,9 @@ final class PortJob: ObservableObject {
 
     var innoextractMissing: Bool {
         if case .repack = kind {
-            return !["/opt/homebrew/bin/innoextract", "/usr/local/bin/innoextract"].contains { FileManager.default.fileExists(atPath: $0) }
+            return ![resource("tools/innoextract").path,
+                      "/opt/homebrew/bin/innoextract",
+                      "/usr/local/bin/innoextract"].contains { FileManager.default.fileExists(atPath: $0) }
         }
         return false
     }

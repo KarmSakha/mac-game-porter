@@ -11,12 +11,28 @@ for t in fa-filter srep clshost.exe fg-arc-map; do
   [[ -x "$TOOLS/$t" ]] || { "$REPO/native/build.sh" "$TOOLS"; break; }
 done
 
+if [[ "$(xcode-select -p 2>/dev/null)" == *CommandLineTools* ]]; then
+  echo "warning: xcode-select points at Command Line Tools; SwiftUI macro plugins can be missing." >&2
+  echo "         If the build fails with 'SwiftUIMacros not found', run:" >&2
+  echo "         sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+fi
+
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/porter-src" "$APP/Contents/Resources/tools"
 swiftc -O -parse-as-library -target arm64-apple-macos14 "$REPO/gui/MacGamePorter.swift" -o "$APP/Contents/MacOS/MacGamePorter"
 cp -R "$REPO/porter" "$REPO/templates" "$REPO/porter.sh" "$APP/Contents/Resources/porter-src/"
 rm -rf "$APP/Contents/Resources/porter-src/porter/__pycache__"
 cp "$TOOLS"/{fa-filter,srep,clshost.exe,fg-arc-map} "$APP/Contents/Resources/tools/"
+
+# Bundle innoextract + its shared-library deps so the released app needs no Homebrew.
+if command -v innoextract >/dev/null && command -v dylibbundler >/dev/null; then
+  cp "$(command -v innoextract)" "$APP/Contents/Resources/tools/innoextract"
+  mkdir -p "$APP/Contents/Resources/tools/libs"
+  dylibbundler -of -b -x "$APP/Contents/Resources/tools/innoextract" \
+    -d "$APP/Contents/Resources/tools/libs" -p @executable_path/libs >/dev/null
+elif ! command -v innoextract >/dev/null; then
+  echo "note: innoextract not found — repack installs in this build will need 'brew install innoextract'" >&2
+fi
 swift "$REPO/gui/make_icon.swift" "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
