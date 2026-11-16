@@ -59,11 +59,21 @@ Ported another game? Open an issue or PR to add it to this list.
 
 ## Quick start
 
-### App (recommended)
+### Download the app (easiest)
+
+Get **`MacGamePorter.dmg`** (or `.zip`) from
+[Releases](https://github.com/KarmSakha/mac-game-porter/releases), drag the app into Applications,
+and open it. Everything it needs — decoders, innoextract, and the Wine/Game Porting Toolkit runtimes —
+is bundled or downloaded and verified automatically on first use. No Homebrew, git, or Xcode required.
+
+> The app is ad-hoc signed, so macOS may warn about an "unidentified developer" on first launch:
+> right-click the app → **Open** → **Open**.
+
+### Build from source
 
 ```sh
 git clone https://github.com/KarmSakha/mac-game-porter.git && cd mac-game-porter
-brew install innoextract rust mingw-w64
+brew install innoextract rust mingw-w64 dylibbundler   # dylibbundler bundles innoextract into the app
 gui/build.sh && cp -R "build/Mac Game Porter.app" ~/Applications/
 ```
 
@@ -134,8 +144,10 @@ Logs are written to `~/Library/Application Support/<Name>/last-run.log`.
 
 ## Requirements
 
-Apple Silicon Mac on macOS 14 or later, Xcode command line tools, and Homebrew packages
-`innoextract rust mingw-w64` (`native/build.sh` checks for them). Runtimes are downloaded on first use and
+Apple Silicon Mac on macOS 14 or later. To build from source: a full Xcode install selected via
+`xcode-select` (Command Line Tools alone can miss the SwiftUI macro plugins and produce a
+`SwiftUIMacros not found` error), plus Homebrew packages `innoextract rust mingw-w64 dylibbundler`
+(`native/build.sh` checks for them). Runtimes are downloaded on first use and
 verified by SHA-256:
 [Wine Staging 11.18](https://github.com/Gcenx/macOS_Wine_builds) for the decoders and
 [Game Porting Toolkit 3.0](https://github.com/Gcenx/game-porting-toolkit) for games.
