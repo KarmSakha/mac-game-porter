@@ -24,15 +24,46 @@ cp -R "$REPO/porter" "$REPO/templates" "$REPO/porter.sh" "$APP/Contents/Resource
 rm -rf "$APP/Contents/Resources/porter-src/porter/__pycache__"
 cp "$TOOLS"/{fa-filter,srep,clshost.exe,fg-arc-map} "$APP/Contents/Resources/tools/"
 
-# Bundle innoextract + its shared-library deps so the released app needs no Homebrew.
-if command -v innoextract >/dev/null && command -v dylibbundler >/dev/null; then
-  cp "$(command -v innoextract)" "$APP/Contents/Resources/tools/innoextract"
-  mkdir -p "$APP/Contents/Resources/tools/libs"
-  dylibbundler -of -b -x "$APP/Contents/Resources/tools/innoextract" \
-    -d "$APP/Contents/Resources/tools/libs" -p @executable_path/libs >/dev/null
-elif ! command -v innoextract >/dev/null; then
+# Bundle innoextract so the released app needs no Homebrew. Prefer a prebuilt
+# binary in $TOOLS (the release workflow builds one with no Homebrew deps).
+INNO=""
+if [[ -x "$TOOLS/innoextract" ]]; then
+  INNO="$TOOLS/innoextract"
+elif command -v innoextract >/dev/null; then
+  INNO="$(command -v innoextract)"
+fi
+if [[ -n "$INNO" ]]; then
+  cp "$INNO" "$APP/Contents/Resources/tools/innoextract"
+  # Pull in any non-system dylibs the binary needs (e.g. a Homebrew build);
+  # a self-contained binary links only /usr/lib and needs no libs/ dir.
+  if command -v dylibbundler >/dev/null && \
+     otool -L "$APP/Contents/Resources/tools/innoextract" | tail -n +2 \
+       | awk '{print $1}' | grep -v '^/usr/lib/\|^/System/\|^@' | grep -q .; then
+    mkdir -p "$APP/Contents/Resources/tools/libs"
+    dylibbundler -of -b -x "$APP/Contents/Resources/tools/innoextract" \
+      -d "$APP/Contents/Resources/tools/libs" -p @executable_path/libs >/dev/null
+  fi
+else
   echo "note: innoextract not found — repack installs in this build will need 'brew install innoextract'" >&2
 fi
+
+# Bundle a standalone Python so the app runs on Macs without Xcode CLT/python3.
+# Downloaded once into $TOOLS (cached across rebuilds), then copied into the app.
+PYSTANDALONE_URL="https://github.com/astral-sh/python-build-standalone/releases/download/20261110/cpython-3.13.18+20261110-aarch64-apple-darwin-install_only_stripped.tar.gz"
+if [[ ! -x "$TOOLS/python/bin/python3" ]]; then
+  mkdir -p "$TOOLS"
+  echo "downloading standalone Python for bundling..." >&2
+  curl -fsSL "$PYSTANDALONE_URL" -o "$TOOLS/python.tar.gz"
+  rm -rf "$TOOLS/.python-tmp" && mkdir "$TOOLS/.python-tmp"
+  tar -xzf "$TOOLS/python.tar.gz" -C "$TOOLS/.python-tmp"
+  if [[ -x "$TOOLS/.python-tmp/python/bin/python3" ]]; then
+    mv "$TOOLS/.python-tmp/python" "$TOOLS/python"
+  else
+    mv "$TOOLS/.python-tmp" "$TOOLS/python"
+  fi
+  rm -rf "$TOOLS/.python-tmp" "$TOOLS/python.tar.gz"
+fi
+cp -R "$TOOLS/python" "$APP/Contents/Resources/tools/python"
 swift "$REPO/gui/make_icon.swift" "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
